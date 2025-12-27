@@ -84,7 +84,6 @@ const HotelDetails: React.FC = () => {
     }));
     if (["checkInDate", "checkOutDate", "numberOfRooms"].includes(name)) {
       setAvailabilityResult(null);
-      // setCheckAvailability(false);
       setError("");
     }
     if (name === "guestPhone") {
@@ -102,7 +101,6 @@ const HotelDetails: React.FC = () => {
   const handleRoomSelect = (type: string) => {
     setSelectedRoomType(type);
     setAvailabilityResult(null);
-    // setCheckAvailability(false);
     setError("");
   };
 
@@ -127,7 +125,6 @@ const HotelDetails: React.FC = () => {
       );
       setAvailabilityResult(result);
       setError("");
-      // setCheckAvailability(true);
       if (result.available) {
         setSnack({
           open: true,
@@ -144,7 +141,6 @@ const HotelDetails: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to check availability");
-      // setCheckAvailability(false);
       setSnack({
         open: true,
         msg: "Failed to check availability",
