@@ -26,7 +26,6 @@ const HotelDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedRoomType, setSelectedRoomType] = useState("");
-  const [checkAvailability, setCheckAvailability] = useState(false);
   const [availabilityResult, setAvailabilityResult] = useState<any>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [snack, setSnack] = useState<{
@@ -85,7 +84,7 @@ const HotelDetails: React.FC = () => {
     }));
     if (["checkInDate", "checkOutDate", "numberOfRooms"].includes(name)) {
       setAvailabilityResult(null);
-      setCheckAvailability(false);
+      // setCheckAvailability(false);
       setError("");
     }
     if (name === "guestPhone") {
@@ -103,7 +102,7 @@ const HotelDetails: React.FC = () => {
   const handleRoomSelect = (type: string) => {
     setSelectedRoomType(type);
     setAvailabilityResult(null);
-    setCheckAvailability(false);
+    // setCheckAvailability(false);
     setError("");
   };
 
@@ -128,7 +127,7 @@ const HotelDetails: React.FC = () => {
       );
       setAvailabilityResult(result);
       setError("");
-      setCheckAvailability(true);
+      // setCheckAvailability(true);
       if (result.available) {
         setSnack({
           open: true,
@@ -145,7 +144,7 @@ const HotelDetails: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to check availability");
-      setCheckAvailability(false);
+      // setCheckAvailability(false);
       setSnack({
         open: true,
         msg: "Failed to check availability",
