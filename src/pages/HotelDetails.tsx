@@ -77,7 +77,13 @@ const HotelDetails: React.FC = () => {
   }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+
+    // Allow only numbers for phone field and limit to 10 digits
+    if (name === "guestPhone") {
+      value = value.replace(/\D/g, "").slice(0, 10);
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: name === "numberOfRooms" ? parseInt(value) : value,
@@ -87,10 +93,9 @@ const HotelDetails: React.FC = () => {
       setError("");
     }
     if (name === "guestPhone") {
-      const digits = value.replace(/\D/g, "");
-      if (digits.length === 0) {
+      if (value.length === 0) {
         setPhoneError(null);
-      } else if (!/^\d{10}$/.test(digits)) {
+      } else if (!/^\d{10}$/.test(value)) {
         setPhoneError("Phone number must be exactly 10 digits");
       } else {
         setPhoneError(null);
@@ -321,13 +326,15 @@ const HotelDetails: React.FC = () => {
                 fullWidth
                 label="Phone Number"
                 name="guestPhone"
+                type="tel"
                 value={formData.guestPhone}
                 onChange={handleChange}
                 margin="normal"
-                placeholder="+1234567890"
+                placeholder="1234567890"
                 error={!!phoneError}
                 helperText={phoneError || ""}
                 inputRef={(el) => (phoneRef.current = el)}
+                inputProps={{ inputMode: "numeric", maxLength: 10 }}
               />
             </Box>
 

@@ -1,50 +1,74 @@
-# React + TypeScript + Vite
+# Hotel Booking — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Overview:**
 
-Currently, two official plugins are available:
+- This repository contains the frontend for the Hotel Booking app (React + Vite + TypeScript + MUI).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Deployment:**
 
-## Expanding the ESLint configuration
+- **Frontend (Netlify):** https://grandbooking.netlify.app/
+- **Backend (Railway):** https://hotelbookbackend.up.railway.app (used by the frontend)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+**Quick Setup**
 
-- Configure the top-level `parserOptions` property like this:
+- **Prerequisites:** Node.js (16+), npm
+- Clone and install:
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+  npm install
+
+- Start dev server:
+
+  npm run dev
+
+- Build for production:
+
+  npm run build
+
+- Serve production build locally (optional):
+
+  npm run preview
+
+**Config / API Base URL**
+
+- The frontend points to the backend API at [src/services/api.ts](src/services/api.ts).
+- By default this project currently uses the Railway URL: `https://hotelbookbackend.up.railway.app/api`.
+- To change to a different backend URL, either update `API_BASE_URL` in [src/services/api.ts](src/services/api.ts) or (recommended) switch to an env variable (`VITE_API_BASE_URL`) and use it when creating the axios client.
+
+Example to use an env var in [src/services/api.ts](src/services/api.ts):
+
+```ts
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://hotelbookbackend.up.railway.app/api";
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Then set the variable locally in a `.env` file at project root:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+    VITE_API_BASE_URL=https://hotelbookbackend.up.railway.app/api
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+And add the same value to Netlify's site settings under Environment → Build & deploy → Environment variables.
+
+**Assumptions**
+
+- Authentication uses JWT stored in `localStorage` (`token`) and `user` (JSON). See [src/services/api.ts](src/services/api.ts) for the axios interceptor.
+- Phone numbers are expected to be exactly 10 digits (numeric only) on the frontend; the field enforces digits and a 10-character limit.
+- `numberOfRooms` is limited by the UI (`min:1, max:10`). The backend should re-validate capacity and limits.
+- Dates use native HTML date inputs; the frontend enforces `checkOutDate` > `checkInDate`.
+- CORS must be enabled on the backend for the frontend origin (Netlify URL).
+
+**Room Availability Logic (Frontend)**
+
+- The frontend calls the backend endpoint via `hotelService.checkAvailability(hotelId, roomType, checkInDate, checkOutDate, numberOfRooms)` (see [src/services/api.ts](src/services/api.ts)).
+- The backend response should include at least two properties used by the UI:
+  - `available` (boolean) — whether the requested rooms are available
+  - `availableRooms` (number) — how many rooms are free for the selected type/dates
+- On successful availability check, the UI shows a green or red card and a Snackbar with the result. If `available` is true the Confirm button becomes enabled.
+- The frontend computes total price in the details view as:
+
+  Total Price = roomPrice _ numberOfRooms _ nights
+
+  where `nights` is calculated from the date difference (the UI uses a days difference with Math.ceil).
+
+- The frontend does not mutate availability on check; final booking is performed via `bookingService.createBooking(...)` and the backend must decrement availability / reserve rooms.
+
+---
